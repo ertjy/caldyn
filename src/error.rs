@@ -1,5 +1,6 @@
-use std::error;
-use std::fmt::{self, Display, Formatter};
+use alloc::string::String;
+use core::fmt;
+use core::fmt::{Display, Formatter};
 
 /// Error type for the caldyn crate
 #[derive(Debug, Clone, PartialEq)]
@@ -15,23 +16,6 @@ impl Display for Error {
         match *self {
             Error::ParseError(ref message) => write!(fmt, "ParseError: {}", message),
             Error::NameError(ref message) => write!(fmt, "NameError: {}", message),
-        }
-    }
-}
-
-#[allow(match_same_arms)]
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::ParseError(ref message) => message,
-            Error::NameError(ref message) => message,
-        }
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        match *self {
-            Error::ParseError(_) => None,
-            Error::NameError(_) => None,
         }
     }
 }

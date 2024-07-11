@@ -1,33 +1,37 @@
-use std::str::Chars;
-use std::iter::Peekable;
-
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::iter::Peekable;
+use core::str::Chars;
+use libm::pow;
 use crate::error::Error;
 use crate::context::Context;
 
 /// Get the math function associated with the given `name`
 fn math_function(name: &str) -> Option<fn(f64) -> f64> {
     match name {
-        "sqrt" => Some(f64::sqrt),
-        "cbrt" => Some(f64::cbrt),
-        "sin" => Some(f64::sin),
-        "cos" => Some(f64::cos),
-        "tan" => Some(f64::tan),
-        "asin" => Some(f64::asin),
-        "acos" => Some(f64::acos),
-        "atan" => Some(f64::atan),
-        "sinh" => Some(f64::sinh),
-        "cosh" => Some(f64::cosh),
-        "tanh" => Some(f64::tanh),
-        "asinh" => Some(f64::asinh),
-        "acosh" => Some(f64::acosh),
-        "atanh" => Some(f64::atanh),
-        "floor" => Some(f64::floor),
-        "ceil" => Some(f64::ceil),
-        "abs" => Some(f64::abs),
-        "exp" => Some(f64::exp),
-        "ln" => Some(f64::ln),
-        "log2" => Some(f64::log2),
-        "log10" => Some(f64::log10),
+        "sqrt" => Some(libm::sqrt),
+        "cbrt" => Some(libm::cbrt),
+        "sin" => Some(libm::sin),
+        "cos" => Some(libm::cos),
+        "tan" => Some(libm::tan),
+        "asin" => Some(libm::asin),
+        "acos" => Some(libm::acos),
+        "atan" => Some(libm::atan),
+        "sinh" => Some(libm::sinh),
+        "cosh" => Some(libm::cosh),
+        "tanh" => Some(libm::tanh),
+        "asinh" => Some(libm::asinh),
+        "acosh" => Some(libm::acosh),
+        "atanh" => Some(libm::atanh),
+        "floor" => Some(libm::floor),
+        "ceil" => Some(libm::ceil),
+        "abs" => Some(libm::fabs),
+        "exp" => Some(libm::exp),
+        "ln" => Some(libm::log),
+        "log2" => Some(libm::log2),
+        "log10" => Some(libm::log10),
         _ => None
     }
 }
@@ -102,7 +106,7 @@ impl Ast {
             Ast::Sub(ref left, ref right) => Ok(left.eval(context)? - right.eval(context)?),
             Ast::Mul(ref left, ref right) => Ok(left.eval(context)? * right.eval(context)?),
             Ast::Div(ref left, ref right) => Ok(left.eval(context)? / right.eval(context)?),
-            Ast::Exp(ref left, ref right) => Ok(left.eval(context)?.powf(right.eval(context)?)),
+            Ast::Exp(ref left, ref right) => Ok(pow(left.eval(context)?, right.eval(context)?)),
             Ast::Function(ref func, ref arg) => Ok(func(arg.eval(context)?)),
         }
     }
@@ -173,7 +177,7 @@ impl Ast {
                 let right = right.optimize();
                 if let Some(left) = left.value() {
                     if let Some(right) = right.value() {
-                        return Ast::Value(left.powf(right));
+                        return Ast::Value(pow(left, right));
                     }
                 }
                 return Ast::Exp(Box::new(left), Box::new(right));
@@ -472,8 +476,9 @@ where
 
 #[cfg(test)]
 mod tests {
+    use alloc::string::ToString;
+    use core::error::Error;
     use super::*;
-    use std::error::Error;
 
     #[test]
     fn idents() {
@@ -580,9 +585,9 @@ mod tests {
         assert_eq!(super::eval("(a + b)^2", &context), Ok(9.0));
 
         let result = super::eval("2 * z", &context);
-        assert_eq!(result.err().unwrap().description(), "name 'z' is not defined");
+        assert_eq!(result.err().unwrap().to_string(), "name 'z' is not defined");
         let result = super::eval("2 * a", None);
-        assert_eq!(result.err().unwrap().description(), "name 'a' is not defined");
+        assert_eq!(result.err().unwrap().to_string(), "name 'a' is not defined");
     }
 
     #[test]

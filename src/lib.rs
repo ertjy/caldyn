@@ -93,6 +93,7 @@
 //! algorithm for parsing the expressions. It works only with `f64` data, and
 //! perform a simple constant propagation to optimize the expressions.
 
+#![no_std]
 #![warn(missing_docs)]
 #![allow(unknown_lints)]
 #![warn(clippy, clippy_pedantic)]
@@ -108,3 +109,5 @@ mod context;
 pub use crate::error::Error;
 pub use crate::expr::{Expr, eval, is_variable};
 pub use crate::context::Context;
+
+extern crate alloc;

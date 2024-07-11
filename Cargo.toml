@@ -12,6 +12,9 @@ description = """
 Dynamic evaluation of mathematical expressions
 """
 
+[dependencies]
+libm = "0.2.8"
+
 [dev-dependencies]
 rustyline = "4"
 shellexpand = "1"

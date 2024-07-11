@@ -1,5 +1,7 @@
-use std::collections::BTreeMap;
-use std::fmt;
+use alloc::boxed::Box;
+use alloc::collections::BTreeMap;
+use alloc::string::String;
+use core::fmt;
 
 /// A context hold values for variables, that can be used to evaluate
 /// expressions.
@@ -17,7 +19,7 @@ use std::fmt;
 /// ```
 pub struct Context<'a> {
     values: BTreeMap<String, f64>,
-    query: Option<Box<Fn(&str) -> Option<f64> + 'a>>,
+    query: Option<Box<dyn Fn(&str) -> Option<f64> + 'a>>,
 }
 
 impl<'a> fmt::Debug for Context<'a> {
@@ -121,7 +123,6 @@ impl<'a> Context<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fmt::Write;
 
     #[test]
     fn variables() {
